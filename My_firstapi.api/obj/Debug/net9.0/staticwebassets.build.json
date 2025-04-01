@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "y8ul0a4/R5arXOHZRH5ZeB+34TJLc+/JphuFfVI1kO4=",
+  "Source": "My_firstapi.api",
+  "BasePath": "_content/My_firstapi.api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
