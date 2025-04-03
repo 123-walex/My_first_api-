@@ -1,4 +1,6 @@
+using My_firstapi.api.Data;
 using My_firstapi.api.DTO_s;
+using My_firstapi.api.Entities;
 using System ;
 namespace My_firstapi.api.EndPoints;
 
@@ -49,16 +51,21 @@ public static RouteGroupBuilder MapGamesEndPoint(this WebApplication app)
     .WithName(GetGameEndPointName);
 
     // i'm just defining the create endpoint , POST /games
-    group.MapPost("/" , (CreateGameDTO_s newgame) => 
+    group.MapPost("/" , (CreateGameDTO_s newgame , GamestoreContext dbContext ) => 
     {
-        GameRecord game = new (
-            games.Count + 1 ,
-            newgame.Name ,
-            newgame.Genre ,
-            newgame.Price ,
-            newgame.Releasedate 
-        );
-        games.Add(game) ;
+        
+        Game game = new ()
+        {
+           Name = newgame.Name,
+           Genre = dbContext.Genres.Find(newgame.GenreId) ,
+           GenreId = newgame.GenreId ,
+           Price = newgame.Price ,
+           Releasedate = newgame.Releasedate 
+        };
+
+        dbContext.Games.Add(game) ;
+        dbContext.SaveChanges() ;
+        
         return Results.CreatedAtRoute(GetGameEndPointName , new { id = game.Id} , game);
     }); 
 

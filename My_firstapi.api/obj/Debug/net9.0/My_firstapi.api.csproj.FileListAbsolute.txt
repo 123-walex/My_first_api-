@@ -154,3 +154,4 @@ C:\Users\Lenovo\Documents\GameStore\My_Firstapi.api\bin\Debug\net9.0\ru\Microsof
 C:\Users\Lenovo\Documents\GameStore\My_Firstapi.api\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 C:\Users\Lenovo\Documents\GameStore\My_Firstapi.api\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 C:\Users\Lenovo\Documents\GameStore\My_Firstapi.api\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\Lenovo\Documents\GameStore\My_firstapi.api\obj\Debug\net9.0\My_firstapi.api.sourcelink.json

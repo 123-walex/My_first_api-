@@ -9,7 +9,7 @@ Content-Type: application/json
 
  {
     "name"  : "Call of duty",
-    "genre" : "Action" ,
+    "genreId" : 5 ,
     "price" : 19.99 ,
     "releasedate" : "2019-09-12" 
  }
@@ -21,7 +21,7 @@ Content-Type: application/json
 {
     "name": "Horizons 2",
     "genre": "Adventure",
-    "price": 109.99,
+    "price": 99.99,
     "releasedate": "2023-12-13"
 }
 
