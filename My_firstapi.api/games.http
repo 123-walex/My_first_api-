@@ -1,17 +1,17 @@
 GET http://localhost:5134/games
 // NB => everything in this file is a response header , and they have fields like content-type and cookies
 ###
-GET http://localhost:5134/games/4
+GET http://localhost:5134/games/3
 
 ###
 POST http://localhost:5134/games
 Content-Type: application/json
 
  {
-    "name"  : "Call of duty",
-    "genreId" : 5 ,
-    "price" : 19.99 ,
-    "releasedate" : "2019-09-12" 
+    "name"  : "final fantasy 2",
+    "genreId" : 2 ,
+    "price" : 69.99 ,
+    "releasedate" : "2010-09-12" 
  }
 
 ###
