@@ -17,13 +17,25 @@ public static class GameMapping
         };
    }
 
-   public static GameRecord ToDto(this Game game)
+   public static GameSummaryRecord ToGameSummaryRecordDto(this Game game)
    {
        return new 
         (
            game.Id ,
            game.Name ,
-           game.Genre!.Name ,
+           game.Genre?.Name ?? "Unknown" ,
+           game.Price ,
+           game.Releasedate 
+        );
+   }
+   
+   public static GameRecordDetails ToGameRecordDetails(this Game game)
+   {
+       return new 
+        (
+           game.Id ,
+           game.Name ,
+           game.GenreId,
            game.Price ,
            game.Releasedate 
         );

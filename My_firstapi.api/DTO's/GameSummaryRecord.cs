@@ -1,6 +1,6 @@
 namespace My_firstapi.api.DTO_s;
 
-public record class GameRecord
+public record class GameSummaryRecord
   (
     int Id , 
     string Name , 

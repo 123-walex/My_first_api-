@@ -3,6 +3,7 @@ using My_firstapi.api.Data;
 using My_firstapi.api.DTO_s;
 using My_firstapi.api.Entities;
 using My_firstapi.api.Mapping;
+using Microsoft.EntityFrameworkCore ;
 using System ;
 namespace My_firstapi.api.EndPoints;
 
@@ -11,7 +12,7 @@ public static class GameEndPoint
     
 const string GetGameEndPointName = "GetGame" ;
 
-private static readonly List<GameRecord> games = [
+private static readonly List<GameSummaryRecord> games = [
     new (
         1,
         "Horizons" ,
@@ -44,11 +45,13 @@ public static RouteGroupBuilder MapGamesEndPoint(this WebApplication app)
     group.MapGet("/" , () => games);
 
     //Get with a specific id 
-    group.MapGet("/{id}" , (int id) =>
+    group.MapGet("/{id}" , (int id , GamestoreContext dbContext) =>
      {
-       GameRecord? game = games.Find(games => games.Id == id);
+       Game? game = dbContext.Games
+                   .Include(g => g.Genre)
+                   .FirstOrDefault(g => g.Id == id);
 
-       return game is null ? Results.NotFound() : Results.Ok(game);
+       return game is null ? Results.NotFound() : Results.Ok(game.ToGameRecordDetails());
      })
     .WithName(GetGameEndPointName);
 
@@ -56,7 +59,6 @@ public static RouteGroupBuilder MapGamesEndPoint(this WebApplication app)
     group.MapPost("/" , (CreateGameDTO_s newgame , GamestoreContext dbContext ) => 
     {
         Game game = newgame.ToEntity();
-        game.Genre = dbContext.Genres.Find(newgame.GenreId);
 
         dbContext.Games.Add(game) ;
         dbContext.SaveChanges() ;
@@ -64,7 +66,7 @@ public static RouteGroupBuilder MapGamesEndPoint(this WebApplication app)
         return Results.CreatedAtRoute(
             GetGameEndPointName ,
             new { id = game.Id} ,
-            game.ToDto());
+            game.ToGameSummaryRecordDto());
     }); 
 
     // defining the post endpoint POST /games
@@ -78,7 +80,7 @@ public static RouteGroupBuilder MapGamesEndPoint(this WebApplication app)
              return Results.NotFound();
           }
 
-         games[index] = new GameRecord(
+         games[index] = new GameSummaryRecord(
          id ,
          updatedgame.Name ,
          updatedgame.Genre ,
