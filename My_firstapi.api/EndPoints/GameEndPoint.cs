@@ -42,7 +42,11 @@ public static RouteGroupBuilder MapGamesEndPoint(this WebApplication app)
                 .WithParameterValidation() ;
 
     //Get / games : this command gets the games from the server . 
-    group.MapGet("/" , () => games);
+    group.MapGet("/" , (GamestoreContext dbContext) => 
+          dbContext.Games
+          .Include(game => game.Genre)
+          .Select(game => game.ToGameSummaryRecordDto())
+          .AsNoTracking());
 
     //Get with a specific id 
     group.MapGet("/{id}" , (int id , GamestoreContext dbContext) =>
@@ -55,7 +59,7 @@ public static RouteGroupBuilder MapGamesEndPoint(this WebApplication app)
      })
     .WithName(GetGameEndPointName);
 
-    // i'm just defining the create endpoint , POST /games
+    // i'm just defining the post endpoint , POST /games
     group.MapPost("/" , (CreateGameDTO_s newgame , GamestoreContext dbContext ) => 
     {
         Game game = newgame.ToEntity();
@@ -69,31 +73,32 @@ public static RouteGroupBuilder MapGamesEndPoint(this WebApplication app)
             game.ToGameSummaryRecordDto());
     }); 
 
-    // defining the post endpoint POST /games
-    group.MapPut("/{id}" , (int id , UpdateGameDTO_s updatedgame) => 
+    // defining the put endpoint PUT /games || IT UPDATES A DTO 
+    group.MapPut("/{id}" , (int id , UpdateGameDTO_s updatedgame , GamestoreContext dbContext) => 
     {
-        var index = games.FindIndex(game => game.Id == id);
+        var existinggame = dbContext.Games.Find(id);
 
         // essentially if i sent a put request for a resource and it is not found , it throws a 404 not found
-        if(index == -1)
+        if(existinggame is null)
           {
              return Results.NotFound();
           }
+           
+        dbContext.Entry(existinggame)
+                   .CurrentValues
+                   .SetValues(updatedgame.ToEntity(id)) ;
+        
+        dbContext.SaveChanges() ;  // this line is very necessary when you're don dealing with the database
 
-         games[index] = new GameSummaryRecord(
-         id ,
-         updatedgame.Name ,
-         updatedgame.Genre ,
-         updatedgame.Price ,
-         updatedgame.Releasedate 
-        );
         return Results.NoContent();
     });
 
-    //defining the delete endpoint DELETE/games
-    group.MapDelete("/{id}" , (int id) =>
+    //defining the delete endpoint DELETE/games ,  GamestoreContext dbContext is the dependency injection 
+    group.MapDelete("/{id}" , (int id , GamestoreContext dbContext ) =>
     {
-       games.RemoveAll(game => game.Id == id);
+       dbContext.Games
+                 .Where(game => game.Id == id)
+                 .ExecuteDelete();              // apparently i added something called batch delete here
 
        return Results.NoContent();
     });

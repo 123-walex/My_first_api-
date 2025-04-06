@@ -19,11 +19,11 @@ PUT http://localhost:5134/games/3
 Content-Type: application/json
 
 {
-    "name": "Horizons 2",
-    "genre": "Adventure",
+    "name": "Horizons 2 turbo",
+    "genreid": 1 ,
     "price": 99.99,
     "releasedate": "2023-12-13"
 }
 
 ###
-DELETE http://localhost:5134/games/3
+DELETE http://localhost:5134/games/33
