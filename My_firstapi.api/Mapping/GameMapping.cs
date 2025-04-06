@@ -1,4 +1,5 @@
-using System;
+using System; 
+// here th mapping is between entities and dtos 
 using My_firstapi.api.DTO_s;
 using My_firstapi.api.Entities;
 

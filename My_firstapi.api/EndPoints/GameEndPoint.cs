@@ -12,29 +12,6 @@ public static class GameEndPoint
     
 const string GetGameEndPointName = "GetGame" ;
 
-private static readonly List<GameSummaryRecord> games = [
-    new (
-        1,
-        "Horizons" ,
-        "Adventure" ,
-        49.99M , 
-        new DateOnly(2023 , 12 , 13)),
-    new (
-        2 , 
-        "Fc 24" ,
-        "Football" ,
-        19.99M ,
-        new DateOnly(2024 , 2 , 1)
-    ),
-    new (
-        3 , 
-        "Need For Speed" ,
-        "Racing" ,
-        59.99M ,
-        new DateOnly(2020 , 5 , 23)
-    ),
-] ;
-
 public static RouteGroupBuilder MapGamesEndPoint(this WebApplication app)
 {
     //this is defining a group Builder , where all routes have the "games" prefix
@@ -42,30 +19,31 @@ public static RouteGroupBuilder MapGamesEndPoint(this WebApplication app)
                 .WithParameterValidation() ;
 
     //Get / games : this command gets the games from the server . 
-    group.MapGet("/" , (GamestoreContext dbContext) => 
-          dbContext.Games
+    group.MapGet("/" , async (GamestoreContext dbContext) => 
+           await dbContext.Games
           .Include(game => game.Genre)
           .Select(game => game.ToGameSummaryRecordDto())
-          .AsNoTracking());
+          .AsNoTracking()
+          .ToListAsync());    // async and await are from asynchronous programming 
 
-    //Get with a specific id 
-    group.MapGet("/{id}" , (int id , GamestoreContext dbContext) =>
-     {
-       Game? game = dbContext.Games
-                   .Include(g => g.Genre)
-                   .FirstOrDefault(g => g.Id == id);
+        //Get with a specific id 
+    group.MapGet("/{id}", async (int id, GamestoreContext dbContext) =>
+         {
+             Game? game = await dbContext.Games
+                     .Include(g => g.Genre)
+                     .FirstOrDefaultAsync(g => g.Id == id);
 
-       return game is null ? Results.NotFound() : Results.Ok(game.ToGameRecordDetails());
-     })
-    .WithName(GetGameEndPointName);
+             return game is null ? Results.NotFound() : Results.Ok(game.ToGameRecordDetails());
+         })
+        .WithName(GetGameEndPointName);
 
     // i'm just defining the post endpoint , POST /games
-    group.MapPost("/" , (CreateGameDTO_s newgame , GamestoreContext dbContext ) => 
+    group.MapPost("/" , async (CreateGameDTO_s newgame , GamestoreContext dbContext ) => 
     {
         Game game = newgame.ToEntity();
 
         dbContext.Games.Add(game) ;
-        dbContext.SaveChanges() ;
+        await dbContext.SaveChangesAsync() ;
         
         return Results.CreatedAtRoute(
             GetGameEndPointName ,
@@ -74,9 +52,9 @@ public static RouteGroupBuilder MapGamesEndPoint(this WebApplication app)
     }); 
 
     // defining the put endpoint PUT /games || IT UPDATES A DTO 
-    group.MapPut("/{id}" , (int id , UpdateGameDTO_s updatedgame , GamestoreContext dbContext) => 
+    group.MapPut("/{id}" , async (int id , UpdateGameDTO_s updatedgame , GamestoreContext dbContext) => 
     {
-        var existinggame = dbContext.Games.Find(id);
+        var existinggame = await dbContext.Games.FindAsync(id);
 
         // essentially if i sent a put request for a resource and it is not found , it throws a 404 not found
         if(existinggame is null)
@@ -88,17 +66,17 @@ public static RouteGroupBuilder MapGamesEndPoint(this WebApplication app)
                    .CurrentValues
                    .SetValues(updatedgame.ToEntity(id)) ;
         
-        dbContext.SaveChanges() ;  // this line is very necessary when you're don dealing with the database
+        await dbContext.SaveChangesAsync() ;  // this line is very necessary when you're done dealing with the database
 
         return Results.NoContent();
     });
 
     //defining the delete endpoint DELETE/games ,  GamestoreContext dbContext is the dependency injection 
-    group.MapDelete("/{id}" , (int id , GamestoreContext dbContext ) =>
+    group.MapDelete("/{id}" , async (int id , GamestoreContext dbContext ) =>
     {
-       dbContext.Games
+        await dbContext.Games
                  .Where(game => game.Id == id)
-                 .ExecuteDelete();              // apparently i added something called batch delete here
+                 .ExecuteDeleteAsync();              // apparently i added something called batch delete here
 
        return Results.NoContent();
     });
